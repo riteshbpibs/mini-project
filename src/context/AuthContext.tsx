@@ -30,6 +30,7 @@ const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const handleLogout = useCallback(() => {
     deleteLocalStorage("username");
     deleteLocalStorage("login");
+
     setLogin(false);
     setUserName("");
     window.history.replaceState({}, "", "/");

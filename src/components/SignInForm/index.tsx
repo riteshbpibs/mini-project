@@ -2,7 +2,7 @@ import React, { useReducer } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { IMAGE_PREFIX } from "configs/images";
-import { setLocalStorage } from "helpers/utils";
+import { getLocalStorage, setLocalStorage } from "helpers/utils";
 import { useAuthContext } from "context/AuthContext";
 import { useModalContext } from "context/ModalContext";
 
@@ -50,15 +50,32 @@ const SignInForm = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { user } = state;
+    const { user, password } = state;
 
-    setLocalStorage("username", user);
-    setLocalStorage("login", true);
+    if (checkUserAvailable(user, password)) {
+      setLocalStorage("username", user);
+      setLocalStorage("login", true);
 
-    setUserName(user);
-    setLogin(true);
-    navigate("/");
-    handleOpenModal("login", false);
+      setUserName(user);
+      setLogin(true);
+      navigate("/");
+      openModal.login && handleOpenModal("login", false);
+    } else {
+      window.alert("Invalid email/username or password");
+    }
+  };
+
+  const checkUserAvailable = (user: string, pass: string) => {
+    const localUsers = getLocalStorage("users")!;
+    const parsedUsers = JSON.parse(localUsers);
+
+    for (let { username, password } of parsedUsers) {
+      if (user === username && pass === password) {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   const handleOnChange = (

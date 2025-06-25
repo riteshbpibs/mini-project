@@ -2,7 +2,7 @@ import React, { useReducer } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { IMAGE_PREFIX } from "configs/images";
-import { setLocalStorage } from "helpers/utils";
+import { getLocalStorage, setLocalStorage } from "helpers/utils";
 import { useAuthContext } from "context/AuthContext";
 import { useModalContext } from "context/ModalContext";
 
@@ -60,13 +60,23 @@ const SignUpForm = () => {
       return;
     }
 
-    setLocalStorage("username", user);
-    setLocalStorage("login", true);
+    const localUsers = getLocalStorage("users")!;
+    const parsedUsers = JSON.parse(localUsers);
 
-    setUserName(user);
-    setLogin(true);
-    navigate("/");
-    handleOpenModal("signUp", false);
+    if (checkExistingUser(user)) {
+      window.alert("Email/Username already exists");
+    } else {
+      const newUsers = [...parsedUsers, { username: user, password: password }];
+      setLocalStorage("users", JSON.stringify(newUsers));
+      setLocalStorage("username", user);
+      setLocalStorage("login", true);
+
+      setUserName(user);
+      setLogin(true);
+      navigate("/");
+
+      openModal.signUp && handleOpenModal("signUp", false);
+    }
   };
 
   const handleOnChange = (
@@ -77,6 +87,19 @@ const SignUpForm = () => {
     const sanitizedValue = value.replace(/\s/g, "");
 
     dispatch({ type, payload: sanitizedValue });
+  };
+
+  const checkExistingUser = (user: string) => {
+    const localUsers = getLocalStorage("users")!;
+    const parsedUsers = JSON.parse(localUsers);
+
+    for (let { username } of parsedUsers) {
+      if (user === username) {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   return (

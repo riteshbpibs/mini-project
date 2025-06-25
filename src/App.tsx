@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 
 import Header from "./components/Header";
 import RoutesComponent from "./routes/routes";
-import { getLocalStorage } from "helpers/utils";
 import { useAuthContext } from "context/AuthContext";
+import { getLocalStorage, setLocalStorage } from "helpers/utils";
 
 function App() {
-  const { setLogin, setUserName } = useAuthContext();
+  const { setLogin, setUserName, handleLogout } = useAuthContext();
 
   useEffect(() => {
     authentication();
@@ -15,14 +15,29 @@ function App() {
   }, []);
 
   const authentication = () => {
+    const preDefinedUsers = [
+      {
+        username: "demo@example.com",
+        password: "password123",
+      },
+      {
+        username: "test@user.com",
+        password: "testpass",
+      },
+    ];
+
+    const localUsers = getLocalStorage("users");
+    if (!localUsers) {
+      setLocalStorage("users", JSON.stringify(preDefinedUsers));
+    }
+
     if (getLocalStorage("login") && getLocalStorage("username")) {
       const username = getLocalStorage("username")!;
 
       setLogin(true);
       setUserName(username);
     } else {
-      setLogin(false);
-      setUserName("");
+      handleLogout();
     }
   };
 
