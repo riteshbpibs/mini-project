@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 
 import Header from "./components/Header";
 import RoutesComponent from "./routes/routes";
@@ -45,7 +45,9 @@ function App() {
     <div className="">
       <Header />
 
-      <RoutesComponent />
+      <Suspense fallback={""}>
+        <RoutesComponent />
+      </Suspense>
     </div>
   );
 }
